@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { X, Send, Sparkles, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AIChatProps {
@@ -15,16 +16,26 @@ interface AIChatProps {
 
 const AIChat = ({ projectId, currentCode, onCodeUpdate, onClose }: AIChatProps) => {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
-    { role: "assistant", content: "Hi! I'm your AI assistant. Tell me what changes you'd like to make to your website." }
+    { role: "assistant", content: "Hi! I'm your AI assistant. Tell me what changes you'd like to make to your website. You can also upload an image for reference!" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      toast({ title: "Image selected", description: file.name });
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -35,16 +46,27 @@ const AIChat = ({ projectId, currentCode, onCodeUpdate, onClose }: AIChatProps) 
     setLoading(true);
 
     try {
+      let imageBase64 = null;
+      if (selectedImage) {
+        const reader = new FileReader();
+        imageBase64 = await new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(selectedImage);
+        });
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-website', {
         body: {
           prompt: userMessage,
-          existingCode: currentCode
+          existingCode: currentCode,
+          image: imageBase64
         }
       });
 
       if (error) throw error;
 
       onCodeUpdate(data.html, data.css, data.js);
+      setSelectedImage(null);
       setMessages(prev => [...prev, { 
         role: "assistant", 
         content: "I've updated your website! Check the preview to see the changes." 
@@ -96,8 +118,35 @@ const AIChat = ({ projectId, currentCode, onCodeUpdate, onClose }: AIChatProps) 
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-2">
+        <Input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageSelect}
+          className="hidden"
+        />
+        {selectedImage && (
+          <div className="text-xs text-muted-foreground p-2 bg-muted rounded flex items-center justify-between">
+            <span>{selectedImage.name}</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading}
+          >
+            <Upload className="h-4 w-4" />
+          </Button>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -108,8 +157,9 @@ const AIChat = ({ projectId, currentCode, onCodeUpdate, onClose }: AIChatProps) 
               }
             }}
             placeholder="Describe your changes..."
-            rows={3}
+            rows={2}
             disabled={loading}
+            className="flex-1"
           />
           <Button 
             onClick={handleSend} 
