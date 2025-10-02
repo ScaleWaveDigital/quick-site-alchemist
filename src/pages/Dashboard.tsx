@@ -10,7 +10,8 @@ import ProjectsList from "@/components/ProjectsList";
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -28,6 +29,11 @@ const Dashboard = () => {
   };
 
   if (!user) return null;
+
+  const handleTemplateSelect = (template: any) => {
+    setSelectedTemplate(template);
+    setShowTemplateDialog(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -62,10 +68,16 @@ const Dashboard = () => {
 
         <div className="mt-12">
           <h3 className="text-2xl font-bold mb-6">Start from a Template</h3>
-          <TemplateGrid onSelectTemplate={(template) => {
-            setShowTemplates(false);
-          }} />
+          <TemplateGrid onSelectTemplate={handleTemplateSelect} />
         </div>
+
+        {showTemplateDialog && selectedTemplate && (
+          <CreateProjectDialog 
+            templatePrompt={selectedTemplate.prompt}
+          >
+            <div />
+          </CreateProjectDialog>
+        )}
       </main>
     </div>
   );

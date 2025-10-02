@@ -15,12 +15,20 @@ interface CreateProjectDialogProps {
 }
 
 const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!templatePrompt);
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState(templatePrompt || "");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Auto-open when template is selected
+  useState(() => {
+    if (templatePrompt) {
+      setOpen(true);
+      setPrompt(templatePrompt);
+    }
+  });
 
   const handleCreate = async () => {
     if (!name.trim() || !prompt.trim()) {

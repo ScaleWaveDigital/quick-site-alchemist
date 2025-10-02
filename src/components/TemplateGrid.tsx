@@ -38,6 +38,9 @@ interface TemplateGridProps {
 }
 
 const TemplateGrid = ({ onSelectTemplate }: TemplateGridProps) => {
+  const handleTemplateClick = (template: typeof templates[0]) => {
+    onSelectTemplate(template);
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {templates.map((template) => {
@@ -55,7 +58,7 @@ const TemplateGrid = ({ onSelectTemplate }: TemplateGridProps) => {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => onSelectTemplate(template)}
+                onClick={() => handleTemplateClick(template)}
               >
                 Use Template
               </Button>
