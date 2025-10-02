@@ -16,7 +16,7 @@ const LivePreview = ({ html, css, js }: LivePreviewProps) => {
     if (!iframeRef.current) return;
 
     const iframe = iframeRef.current;
-    const document = iframe.contentDocument;
+    const document = iframe.contentDocument || iframe.contentWindow?.document;
     if (!document) return;
 
     const fullHTML = `
@@ -34,9 +34,13 @@ const LivePreview = ({ html, css, js }: LivePreviewProps) => {
       </html>
     `;
 
-    document.open();
-    document.write(fullHTML);
-    document.close();
+    try {
+      document.open();
+      document.write(fullHTML);
+      document.close();
+    } catch (error) {
+      console.error('Error rendering preview:', error);
+    }
   }, [html, css, js]);
 
   const getIframeWidth = () => {
@@ -48,38 +52,50 @@ const LivePreview = ({ html, css, js }: LivePreviewProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 p-2 border-b bg-background">
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex items-center gap-2 p-3 border-b bg-muted/30">
+        <span className="text-sm font-medium text-muted-foreground">Preview:</span>
         <Button
           variant={viewMode === "desktop" ? "default" : "ghost"}
           size="sm"
           onClick={() => setViewMode("desktop")}
         >
-          <Monitor className="h-4 w-4" />
+          <Monitor className="h-4 w-4 mr-1" />
+          Desktop
         </Button>
         <Button
           variant={viewMode === "tablet" ? "default" : "ghost"}
           size="sm"
           onClick={() => setViewMode("tablet")}
         >
-          <Tablet className="h-4 w-4" />
+          <Tablet className="h-4 w-4 mr-1" />
+          Tablet
         </Button>
         <Button
-          variant={viewMode === "tablet" ? "default" : "ghost"}
+          variant={viewMode === "mobile" ? "default" : "ghost"}
           size="sm"
           onClick={() => setViewMode("mobile")}
         >
-          <Smartphone className="h-4 w-4" />
+          <Smartphone className="h-4 w-4 mr-1" />
+          Mobile
         </Button>
       </div>
-      <div className="flex-1 overflow-auto bg-muted/20 flex justify-center items-start p-4">
-        <iframe
-          ref={iframeRef}
-          style={{ width: getIframeWidth(), height: "100%", transition: "width 0.3s ease" }}
-          className="border-0 bg-white shadow-lg"
-          title="Website Preview"
-          sandbox="allow-scripts allow-forms allow-modals allow-popups"
-        />
+      <div className="flex-1 overflow-auto bg-muted/10 flex justify-center items-start p-4">
+        <div 
+          style={{ 
+            width: getIframeWidth(), 
+            height: "100%",
+            transition: "width 0.3s ease",
+            maxWidth: "100%"
+          }}
+        >
+          <iframe
+            ref={iframeRef}
+            className="w-full h-full border-0 bg-white shadow-lg rounded"
+            title="Website Preview"
+            sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"
+          />
+        </div>
       </div>
     </div>
   );
