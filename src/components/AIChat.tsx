@@ -63,7 +63,22 @@ const AIChat = ({ projectId, currentCode, onCodeUpdate, onClose }: AIChatProps) 
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Function error:', error);
+        throw new Error(error.message || 'Failed to update website');
+      }
+
+      if (!data) {
+        throw new Error('No data returned from AI');
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (!data.html || !data.css || !data.js) {
+        throw new Error('Incomplete website code generated');
+      }
 
       onCodeUpdate(data.html, data.css, data.js);
       setSelectedImage(null);

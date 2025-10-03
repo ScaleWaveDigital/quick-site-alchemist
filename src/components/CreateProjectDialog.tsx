@@ -46,7 +46,22 @@ const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogPr
         body: { prompt, existingCode: null }
       });
 
-      if (functionError) throw functionError;
+      if (functionError) {
+        console.error('Function error:', functionError);
+        throw new Error(functionError.message || 'Failed to generate website');
+      }
+
+      if (!functionData) {
+        throw new Error('No data returned from AI');
+      }
+
+      if (functionData.error) {
+        throw new Error(functionData.error);
+      }
+
+      if (!functionData.html || !functionData.css || !functionData.js) {
+        throw new Error('Incomplete website code generated');
+      }
 
       // Save project to database
       const { data: project, error: dbError } = await supabase
@@ -60,12 +75,15 @@ const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogPr
           js_code: functionData.js,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (dbError) throw dbError;
+      if (!project) throw new Error('Failed to save project');
 
       toast({ title: "Project created successfully!" });
       setOpen(false);
+      setName("");
+      setPrompt("");
       navigate(`/editor/${project.id}`);
     } catch (error: any) {
       console.error('Create project error:', error);
