@@ -71,8 +71,9 @@ const Dashboard = () => {
           <TemplateGrid onSelectTemplate={handleTemplateSelect} />
         </div>
 
-        {showTemplateDialog && selectedTemplate && (
+        {selectedTemplate && (
           <CreateProjectDialog 
+            key={selectedTemplate.name}
             templatePrompt={selectedTemplate.prompt}
           >
             <div />

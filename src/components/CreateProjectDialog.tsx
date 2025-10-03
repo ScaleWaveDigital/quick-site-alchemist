@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,20 +15,20 @@ interface CreateProjectDialogProps {
 }
 
 const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogProps) => {
-  const [open, setOpen] = useState(!!templatePrompt);
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [prompt, setPrompt] = useState(templatePrompt || "");
+  const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Auto-open when template is selected
-  useState(() => {
+  // Auto-open and set prompt when template is selected
+  useEffect(() => {
     if (templatePrompt) {
       setOpen(true);
       setPrompt(templatePrompt);
     }
-  });
+  }, [templatePrompt]);
 
   const handleCreate = async () => {
     if (!name.trim() || !prompt.trim()) {

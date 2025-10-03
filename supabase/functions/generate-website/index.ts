@@ -97,9 +97,10 @@ CSS: ${existingCode.css}
 JS: ${existingCode.js}
 
 User's modification request: ${userPrompt}`
-      : `You are a web development expert. Generate a complete, fully functional website based on the user's description. Return a JSON object with three fields: "html", "css", and "js". 
+      : `You are a web development expert. Generate a complete, fully functional website based on the user's description. You MUST return ONLY a valid JSON object with exactly three fields: "html", "css", and "js". 
 
 CRITICAL REQUIREMENTS:
+- Return ONLY valid JSON, no markdown, no explanation, no code blocks
 - ALL buttons must have working onclick handlers
 - ALL forms must have working submit handlers and validation
 - ALL navigation links must work properly
@@ -119,15 +120,14 @@ CRITICAL REQUIREMENTS:
 User's description: ${userPrompt}`;
 
     const messages: any[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'user', content: systemPrompt + '\n\n' + userPrompt }
     ];
 
     if (image) {
-      messages[1] = {
+      messages[0] = {
         role: 'user',
         content: [
-          { type: 'text', text: userPrompt },
+          { type: 'text', text: systemPrompt + '\n\n' + userPrompt },
           { type: 'image_url', image_url: { url: image } }
         ]
       };
