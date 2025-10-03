@@ -11,60 +11,11 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, existingCode, image } = await req.json();
+    const { prompt, existingCode } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
-    }
-
-    // Generate AI images if it's a new website (not an edit)
-    let generatedImages: Array<{ prompt: string; url: string }> = [];
-    if (!existingCode) {
-      console.log('Generating AI images for website...');
-      try {
-        const imagePrompts = [
-          `Professional hero banner image for: ${prompt}`,
-          `Modern, clean background pattern for: ${prompt}`,
-          `Attractive product/service showcase image for: ${prompt}`
-        ];
-
-        const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image-preview',
-            messages: [
-              { role: 'user', content: imagePrompts[0] }
-            ],
-            modalities: ['image', 'text']
-          }),
-        });
-
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-          if (imageUrl) {
-            generatedImages.push({ prompt: imagePrompts[0], url: imageUrl });
-            console.log('Generated hero image successfully');
-          }
-        }
-      } catch (imageError) {
-        console.error('Error generating images:', imageError);
-        // Continue without images if generation fails
-      }
-    }
-
-    let userPrompt = prompt;
-    if (image) {
-      userPrompt = `${prompt}\n\nReference image provided by user for design inspiration.`;
-    }
-    
-    if (generatedImages.length > 0) {
-      userPrompt = `${prompt}\n\nUse this generated hero image in the website: ${generatedImages[0].url}\nMake sure to use it as the main hero/banner image.`;
     }
 
     const systemPrompt = existingCode 
@@ -75,7 +26,7 @@ HTML: ${existingCode.html}
 CSS: ${existingCode.css}
 JS: ${existingCode.js}
 
-User's modification request: ${userPrompt}`
+User's modification request: ${prompt}`
       : `You are a web development expert. Generate a complete, fully functional website based on the user's description. Return a JSON object with three fields: "html", "css", and "js". 
 
 CRITICAL REQUIREMENTS:
@@ -84,29 +35,12 @@ CRITICAL REQUIREMENTS:
 - ALL navigation links must work properly
 - ALL interactive elements must be fully functional
 - Include proper event listeners in the JavaScript
-- Make it responsive and modern with beautiful design
+- Make it responsive and modern
 - Use clean, semantic HTML
 - No placeholder or dummy buttons
 - Every interactive element must DO something
-- Use the provided AI-generated images when available
-- Create professional, polished designs with proper spacing and colors
 
-User's description: ${userPrompt}`;
-
-    const messages: any[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ];
-
-    if (image) {
-      messages[1] = {
-        role: 'user',
-        content: [
-          { type: 'text', text: userPrompt },
-          { type: 'image_url', image_url: { url: image } }
-        ]
-      };
-    }
+User's description: ${prompt}`;
 
     console.log('Calling Lovable AI...');
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -117,7 +51,10 @@ User's description: ${userPrompt}`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
         response_format: { type: "json_object" }
       }),
     });
