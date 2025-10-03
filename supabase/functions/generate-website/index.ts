@@ -19,15 +19,13 @@ serve(async (req) => {
     }
 
     // Generate AI images if it's a new website (not an edit)
-    let generatedImages: Array<{ prompt: string; url: string }> = [];
+    let generatedImages: Array<{ prompt: string; url: string; altText: string }> = [];
+    const fallbackImage = 'https://picsum.photos/1200/600';
+    
     if (!existingCode) {
       console.log('Generating AI images for website...');
       try {
-        const imagePrompts = [
-          `Professional hero banner image for: ${prompt}`,
-          `Modern, clean background pattern for: ${prompt}`,
-          `Attractive product/service showcase image for: ${prompt}`
-        ];
+        const imagePrompt = `Professional, high-quality hero banner image for: ${prompt}. Ultra high resolution, modern and attractive.`;
 
         const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
@@ -38,7 +36,7 @@ serve(async (req) => {
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash-image-preview',
             messages: [
-              { role: 'user', content: imagePrompts[0] }
+              { role: 'user', content: imagePrompt }
             ],
             modalities: ['image', 'text']
           }),
@@ -48,13 +46,36 @@ serve(async (req) => {
           const imageData = await imageResponse.json();
           const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
           if (imageUrl) {
-            generatedImages.push({ prompt: imagePrompts[0], url: imageUrl });
+            generatedImages.push({ 
+              prompt: imagePrompt, 
+              url: imageUrl,
+              altText: `Hero image for ${prompt}`
+            });
             console.log('Generated hero image successfully');
+          } else {
+            console.log('No image URL in response, using fallback');
+            generatedImages.push({ 
+              prompt: imagePrompt, 
+              url: fallbackImage,
+              altText: `Hero banner for ${prompt}`
+            });
           }
+        } else {
+          console.log('Image generation failed, using fallback');
+          generatedImages.push({ 
+            prompt: imagePrompt, 
+            url: fallbackImage,
+            altText: `Hero banner for ${prompt}`
+          });
         }
       } catch (imageError) {
         console.error('Error generating images:', imageError);
-        // Continue without images if generation fails
+        console.log('Using fallback image due to error');
+        generatedImages.push({ 
+          prompt: `Hero image for ${prompt}`, 
+          url: fallbackImage,
+          altText: `Hero banner for ${prompt}`
+        });
       }
     }
 
@@ -64,7 +85,7 @@ serve(async (req) => {
     }
     
     if (generatedImages.length > 0) {
-      userPrompt = `${prompt}\n\nUse this generated hero image in the website: ${generatedImages[0].url}\nMake sure to use it as the main hero/banner image.`;
+      userPrompt = `${prompt}\n\nUse this generated hero image in the website: ${generatedImages[0].url}\nAlt text: "${generatedImages[0].altText}"\nMake sure to use it as the main hero/banner image with proper alt text.`;
     }
 
     const systemPrompt = existingCode 
@@ -88,8 +109,12 @@ CRITICAL REQUIREMENTS:
 - Use clean, semantic HTML
 - No placeholder or dummy buttons
 - Every interactive element must DO something
-- Use the provided AI-generated images when available
+- Use the provided AI-generated images when available (either base64 data URIs or URLs)
 - Create professional, polished designs with proper spacing and colors
+- ALWAYS include descriptive alt text for ALL images
+- For product/listing sections, use placeholder images from https://picsum.photos with appropriate dimensions (e.g., https://picsum.photos/400/300)
+- Generate descriptive alt text for every image based on its context (e.g., "Luxury villa with ocean view", "Modern leather jacket")
+- Ensure all images have proper alt attributes for accessibility
 
 User's description: ${userPrompt}`;
 
