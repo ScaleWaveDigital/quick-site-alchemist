@@ -169,6 +169,13 @@ User's description: ${userPrompt}`;
     }
 
     const data = await response.json();
+    console.log('AI Response structure:', JSON.stringify(data).substring(0, 200));
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid AI response structure:', data);
+      throw new Error('Invalid response structure from AI Gateway');
+    }
+    
     const content = data.choices[0].message.content;
     
     console.log('AI Response received');
