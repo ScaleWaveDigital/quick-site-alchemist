@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,20 +15,20 @@ interface CreateProjectDialogProps {
 }
 
 const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!templatePrompt);
   const [name, setName] = useState("");
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(templatePrompt || "");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Auto-open and set prompt when template is selected
-  useEffect(() => {
+  // Auto-open when template is selected
+  useState(() => {
     if (templatePrompt) {
       setOpen(true);
       setPrompt(templatePrompt);
     }
-  }, [templatePrompt]);
+  });
 
   const handleCreate = async () => {
     if (!name.trim() || !prompt.trim()) {
@@ -46,22 +46,7 @@ const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogPr
         body: { prompt, existingCode: null }
       });
 
-      if (functionError) {
-        console.error('Function error:', functionError);
-        throw new Error(functionError.message || 'Failed to generate website');
-      }
-
-      if (!functionData) {
-        throw new Error('No data returned from AI');
-      }
-
-      if (functionData.error) {
-        throw new Error(functionData.error);
-      }
-
-      if (!functionData.html || !functionData.css || !functionData.js) {
-        throw new Error('Incomplete website code generated');
-      }
+      if (functionError) throw functionError;
 
       // Save project to database
       const { data: project, error: dbError } = await supabase
@@ -75,15 +60,12 @@ const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogPr
           js_code: functionData.js,
         })
         .select()
-        .maybeSingle();
+        .single();
 
       if (dbError) throw dbError;
-      if (!project) throw new Error('Failed to save project');
 
       toast({ title: "Project created successfully!" });
       setOpen(false);
-      setName("");
-      setPrompt("");
       navigate(`/editor/${project.id}`);
     } catch (error: any) {
       console.error('Create project error:', error);
