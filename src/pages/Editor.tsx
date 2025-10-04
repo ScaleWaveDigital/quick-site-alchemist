@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, Code, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LivePreview from "@/components/LivePreview";
 import AIChat from "@/components/AIChat";
@@ -17,6 +17,7 @@ const Editor = () => {
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
+  const [showCode, setShowCode] = useState(true);
 
   useEffect(() => {
     loadProject();
@@ -83,6 +84,10 @@ const Editor = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowCode(!showCode)}>
+              {showCode ? <Eye className="h-4 w-4 mr-2" /> : <Code className="h-4 w-4 mr-2" />}
+              {showCode ? "Preview Only" : "Show Code"}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)}>
               <Sparkles className="h-4 w-4 mr-2" />
               AI Edit
@@ -94,7 +99,7 @@ const Editor = () => {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <EditorSidebar project={project} onUpdate={handleUpdateCode} />
+        {showCode && <EditorSidebar project={project} onUpdate={handleUpdateCode} />}
         <div className="flex-1 relative">
           <LivePreview 
             html={project.html_code} 
