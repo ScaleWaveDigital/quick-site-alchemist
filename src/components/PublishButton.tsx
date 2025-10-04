@@ -19,7 +19,14 @@ const PublishButton = ({ project }: PublishButtonProps) => {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  const previewUrl = `https://${project.id}.lovable.app`;
+  // Create URL-friendly slug from project name
+  const projectSlug = project?.name
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || project.id;
+
+  const previewUrl = `https://${projectSlug}.lovable.app`;
 
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
