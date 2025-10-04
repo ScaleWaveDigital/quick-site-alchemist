@@ -19,7 +19,9 @@ serve(async (req) => {
     }
 
     const systemPrompt = existingCode 
-      ? `You are a web development expert. The user wants to modify their existing website. Generate ONLY the updated HTML, CSS, and JavaScript code. Return a JSON object with three fields: "html", "css", and "js". Each field should contain the complete updated code. Make sure all buttons, links, forms, and navigation elements are fully functional with proper event handlers and logic. No placeholder buttons or incomplete functionality.
+      ? `You are a web development expert. The user wants to modify their existing website. Generate ONLY the updated HTML, CSS, and JavaScript code. Return a JSON object with four fields: "html", "css", "js", and "imagePrompts". 
+
+The imagePrompts field should be an array of descriptive prompts for AI-generated images that would enhance the website (for products, hero sections, backgrounds, etc.). Each prompt should be detailed and specify the style.
 
 Current code:
 HTML: ${existingCode.html}
@@ -27,7 +29,7 @@ CSS: ${existingCode.css}
 JS: ${existingCode.js}
 
 User's modification request: ${prompt}`
-      : `You are a web development expert. Generate a complete, fully functional website based on the user's description. Return a JSON object with three fields: "html", "css", and "js". 
+      : `You are a web development expert. Generate a complete, fully functional website based on the user's description. Return a JSON object with four fields: "html", "css", "js", and "imagePrompts". 
 
 CRITICAL REQUIREMENTS:
 - ALL buttons must have working onclick handlers
@@ -39,6 +41,10 @@ CRITICAL REQUIREMENTS:
 - Use clean, semantic HTML
 - No placeholder or dummy buttons
 - Every interactive element must DO something
+- In the HTML, use placeholder image tags like <img data-ai-image="0" alt="description"/> where images should be inserted
+- The imagePrompts field should be an array of 3-5 detailed prompts for AI-generated images that would make the website look professional and alive
+- Images should be for: hero sections, product displays, backgrounds, feature illustrations, etc.
+- Each image prompt should be detailed and specify style (e.g., "modern product photo", "abstract background", "professional illustration")
 
 User's description: ${prompt}`;
 
@@ -93,9 +99,51 @@ User's description: ${prompt}`;
       throw new Error('Invalid response format from AI');
     }
 
+    let html = parsedContent.html || '';
+    
+    // Generate images if prompts are provided
+    if (parsedContent.imagePrompts && parsedContent.imagePrompts.length > 0) {
+      console.log('Generating images...', parsedContent.imagePrompts);
+      
+      for (let i = 0; i < parsedContent.imagePrompts.length; i++) {
+        const imagePrompt = parsedContent.imagePrompts[i];
+        
+        const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash-image-preview',
+            messages: [
+              { role: 'user', content: imagePrompt }
+            ],
+            modalities: ['image', 'text']
+          }),
+        });
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+          
+          if (imageUrl) {
+            // Replace placeholder with actual image
+            html = html.replace(
+              new RegExp(`<img[^>]*data-ai-image="${i}"[^>]*>`, 'g'),
+              `<img src="${imageUrl}" alt="${imagePrompt}" style="width: 100%; height: auto; object-fit: cover;">`
+            );
+            console.log(`Image ${i} generated and inserted`);
+          }
+        } else {
+          console.error(`Failed to generate image ${i}`);
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
-        html: parsedContent.html || '',
+        html,
         css: parsedContent.css || '',
         js: parsedContent.js || ''
       }),
