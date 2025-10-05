@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Plus, LogOut } from "lucide-react";
+import { Sparkles, Plus, LogOut, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TemplateGrid from "@/components/TemplateGrid";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
@@ -37,10 +37,16 @@ const Dashboard = () => {
             <Sparkles className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold gradient-text">SiteGenie</h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/help")}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Help
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
