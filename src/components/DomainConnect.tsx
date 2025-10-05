@@ -167,25 +167,6 @@ const DomainConnect = ({ project, onUpdate }: DomainConnectProps) => {
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
-          {/* Default URL Info */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Default URL</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 text-sm bg-muted p-2 rounded">{defaultUrl}</code>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => window.open(defaultUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Domain Input */}
           <div className="space-y-3">
             <Label htmlFor="custom-domain">Custom Domain</Label>
