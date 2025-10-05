@@ -14,9 +14,6 @@ import {
   Settings,
   Share2
 } from "lucide-react";
-import helpDashboard from "@/assets/help-dashboard.jpg";
-import helpEditor from "@/assets/help-editor.jpg";
-import helpDomain from "@/assets/help-domain.jpg";
 
 const Help = () => {
   const navigate = useNavigate();
@@ -30,7 +27,6 @@ const Help = () => {
         {
           title: "Welcome to SiteGenie",
           content: "SiteGenie is an AI-powered website builder that lets you create stunning websites from simple text prompts. No coding knowledge required!",
-          image: helpDashboard,
         },
         {
           title: "Creating Your First Project",
@@ -52,7 +48,6 @@ const Help = () => {
           title: "AI Chat Assistant",
           content: "Need to make changes? Chat with our AI assistant in the editor. Ask it to change colors, add sections, modify content, or completely redesign parts of your website. The AI understands natural language and makes instant updates.",
           icon: Wand2,
-          image: helpEditor,
         },
       ],
     },
@@ -102,7 +97,6 @@ const Help = () => {
         {
           title: "Connecting Custom Domains",
           content: "Want to use your own domain name? Navigate to your project in the dashboard and click 'Connect Domain'. Enter your custom domain (e.g., www.yourbusiness.com) and follow the DNS setup instructions provided.",
-          image: helpDomain,
         },
         {
           title: "DNS Setup Guide",
@@ -199,15 +193,6 @@ const Help = () => {
                         </p>
                       ))}
                     </div>
-                    {section.image && (
-                      <div className="rounded-lg overflow-hidden border">
-                        <img
-                          src={section.image}
-                          alt={section.title}
-                          className="w-full h-auto"
-                        />
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}
