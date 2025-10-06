@@ -152,6 +152,42 @@ const PublishButton = ({ project }: PublishButtonProps) => {
           </TabsContent>
 
           <TabsContent value="custom" className="space-y-4">
+            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+              <p className="text-sm mb-3">
+                <strong>🌐 Don't have a domain yet?</strong> Get one from these providers:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open('https://www.namecheap.com', '_blank')}
+                >
+                  Namecheap <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open('https://www.godaddy.com', '_blank')}
+                >
+                  GoDaddy <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open('https://domains.google', '_blank')}
+                >
+                  Google Domains <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open('https://www.cloudflare.com/products/registrar/', '_blank')}
+                >
+                  Cloudflare <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="domain">Your Domain</Label>
               <div className="flex gap-2">
