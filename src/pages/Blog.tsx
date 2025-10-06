@@ -31,21 +31,6 @@ const Blog = () => {
       id: "kqtD5dpn9C8",
       title: "AI Tools Every Entrepreneur Should Know",
       description: "Discover the most powerful AI tools that can automate tasks, boost productivity, and help scale your business. From content creation to data analysis, learn how AI can transform your workflow."
-    },
-    {
-      id: "JSABr6Abv9k",
-      title: "Website Hosting Explained for Beginners",
-      description: "Understand web hosting fundamentals including domain names, server types, and how to choose the right hosting provider. Essential knowledge for anyone launching a website or online business."
-    },
-    {
-      id: "mC93SaE2NeY",
-      title: "Creating Your First E-commerce Website",
-      description: "Step-by-step tutorial on building an online store from scratch. Learn about product pages, payment integration, and essential features that drive e-commerce success."
-    },
-    {
-      id: "HZSAkC1hpk8",
-      title: "Introduction to No-Code Development",
-      description: "Explore the world of no-code platforms and how they're revolutionizing software development. Perfect for entrepreneurs and creators who want to build apps without programming knowledge."
     }
   ];
 
