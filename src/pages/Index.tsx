@@ -2,9 +2,18 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, Code, Rocket } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import TemplateGrid from "@/components/TemplateGrid";
+import { useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+
+  const handleTemplateSelect = async (template: any) => {
+    // Redirect to auth page if not logged in
+    // The user will need to sign up/login before using templates
+    navigate("/auth");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -58,6 +67,11 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
           </Card>
+        </div>
+
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center mb-8">Start from a Template</h2>
+          <TemplateGrid onSelectTemplate={handleTemplateSelect} />
         </div>
 
         <div className="text-center">
