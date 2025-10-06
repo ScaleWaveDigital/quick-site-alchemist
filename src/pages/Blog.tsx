@@ -18,9 +18,9 @@ const Blog = () => {
       description: "A comprehensive guide to ChatGPT and how to leverage AI for productivity. Perfect for beginners wanting to understand AI tools and their practical applications in daily work."
     },
     {
-      id: "airIQwJMj_8",
-      title: "How to Start an Online Business in 2024",
-      description: "Step-by-step guide to launching your online business from scratch. Covers market research, business planning, and digital marketing strategies for success in the modern marketplace."
+      id: "f60dheI4ARg",
+      title: "How to Make Money Online for Beginners",
+      description: "Explore legitimate ways to earn income online, from freelancing to digital products. This guide covers proven strategies and practical tips for building sustainable online income streams."
     },
     {
       id: "UmnCZ7-9yDY",
@@ -33,14 +33,14 @@ const Blog = () => {
       description: "Discover the most powerful AI tools that can automate tasks, boost productivity, and help scale your business. From content creation to data analysis, learn how AI can transform your workflow."
     },
     {
-      id: "r0Ogt-q956I",
-      title: "SEO in 2024 - Complete Guide for Beginners",
-      description: "Learn search engine optimization strategies to rank higher on Google. This comprehensive guide covers keyword research, on-page SEO, link building, and technical optimization."
+      id: "JSABr6Abv9k",
+      title: "Website Hosting Explained for Beginners",
+      description: "Understand web hosting fundamentals including domain names, server types, and how to choose the right hosting provider. Essential knowledge for anyone launching a website or online business."
     },
     {
-      id: "h0kQJE6bNhQ",
-      title: "Building a Landing Page That Converts",
-      description: "Discover the essential elements of high-converting landing pages. Learn copywriting techniques, design principles, and psychological triggers that turn visitors into customers."
+      id: "mC93SaE2NeY",
+      title: "Creating Your First E-commerce Website",
+      description: "Step-by-step tutorial on building an online store from scratch. Learn about product pages, payment integration, and essential features that drive e-commerce success."
     },
     {
       id: "HZSAkC1hpk8",
