@@ -30,8 +30,14 @@ const CreateProjectDialog = ({ children, templatePrompt }: CreateProjectDialogPr
 
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        // Session is invalid, redirect to auth
+        toast({ title: "Session expired", description: "Please sign in again", variant: "destructive" });
+        navigate("/auth");
+        return;
+      }
+      const user = session.user;
 
       // Generate website code using AI
       const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-website', {

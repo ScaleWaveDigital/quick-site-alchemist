@@ -10,15 +10,45 @@ import ProjectsList from "@/components/ProjectsList";
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) navigate("/auth");
-      else setUser(user);
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          // Clear any invalid session data
+          await supabase.auth.signOut();
+          navigate("/auth");
+          return;
+        }
+        
+        setUser(session.user);
+      } catch (err) {
+        console.error("Auth error:", err);
+        await supabase.auth.signOut();
+        navigate("/auth");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/auth");
+      } else if (session) {
+        setUser(session.user);
+      }
     });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleSignOut = async () => {
@@ -27,7 +57,14 @@ const Dashboard = () => {
     toast({ title: "Signed out successfully" });
   };
 
-  if (!user) return null;
+  if (loading || !user) return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
+      <div className="text-center">
+        <Sparkles className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
